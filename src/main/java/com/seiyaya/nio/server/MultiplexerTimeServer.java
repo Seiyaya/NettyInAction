@@ -43,8 +43,10 @@ public class MultiplexerTimeServer implements Runnable {
 				selector.select(1000);
 				Set<SelectionKey> keys = selector.selectedKeys();
 				Iterator<SelectionKey> keysIt = keys.iterator();
+				System.out.println(keys.size()+"   «∑Ò”–∑µªÿ "+System.currentTimeMillis());
 				while(keysIt.hasNext()) {
 					SelectionKey key = keysIt.next();
+					System.out.println("accept:"+key.isAcceptable()+"\t read "+key.isReadable()+"\twrite"+key.isWritable());
 					keysIt.remove();
 					try {
 						handlerInput(key);

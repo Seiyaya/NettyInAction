@@ -1,9 +1,9 @@
 package com.seiyaya.netty;
 
 
+import org.junit.Test;
+
 import com.seiyaya.netty.handler.NotStickyTimeServerHandler;
-import com.seiyaya.netty.handler.StickyTimeServerHandler;
-import com.seiyaya.netty.handler.TimeServerHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -15,6 +15,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.util.internal.SystemPropertyUtil;
 
 public class NettyTimeServer {
 	
@@ -24,9 +25,14 @@ public class NettyTimeServer {
 	}
 
 	private void bind(int port) {
-		//接受客户端的连接
+		//接受客户端的连接  初始化channel参数，将链路状态通知给ChannelPipeline
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
-		//进行网络传输(SocketChannel)的读写
+		/** 进行网络传输(SocketChannel)的读写
+		 *  异步读取通信对端的数据，发送读事件到ChannelPipeline
+		 *  异步发送消息到通信对端，调用pipeline的消息发送接口
+		 *  执行系统调用task
+		 *  执行定时任务，比如链路空闲状态检测定时任务
+		 */
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
 			ServerBootstrap boot = new ServerBootstrap();
@@ -52,7 +58,7 @@ public class NettyTimeServer {
 		@Override
 		protected void initChannel(SocketChannel ch) throws Exception {
 			//ch.pipeline().addLast(new TimeServerHandler());
-			
+			System.out.println(Thread.currentThread().getName()+" initalizer");
 			
 			//ch.pipeline().addLast(new StickyTimeServerHandler());
 			ch.pipeline().addLast(new LineBasedFrameDecoder(1024));
@@ -60,5 +66,11 @@ public class NettyTimeServer {
 			ch.pipeline().addLast(new NotStickyTimeServerHandler());
 		}
 		
+	}
+	
+	@Test
+	public void test() {
+	    boolean isOptimization = SystemPropertyUtil.getBoolean("io.netty.noKeySetOptimization", false);
+	    System.out.println(isOptimization);
 	}
 }

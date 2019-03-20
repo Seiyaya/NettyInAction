@@ -19,6 +19,7 @@ public class NotStickyTimeServerHandler extends ChannelHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		String body =  (String) msg;
 		System.out.println("sever get req " + body + " counter:" + (++counter));
+		System.out.println(Thread.currentThread().getName());
 
 		String currentTime = "query time order".equals(body) ? new Date().toString() : "bad order";
 		currentTime += System.getProperty("line.separator");
